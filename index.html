@@ -61,10 +61,24 @@
                             </p>
                         </div>
                     </div>
+                    
+                    <!-- Botões de Ação (Exportar, Importar, Reset) -->
                     <div class="flex items-center gap-2">
+                        <button onclick="exportData()" title="Exportar Backup" class="p-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-lg transition text-sm flex items-center gap-1">
+                            <i class="fa-solid fa-download"></i>
+                            <span class="hidden sm:inline text-xs font-medium">Exportar</span>
+                        </button>
+                        <button onclick="triggerImport()" title="Importar Backup" class="p-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-lg transition text-sm flex items-center gap-1">
+                            <i class="fa-solid fa-upload"></i>
+                            <span class="hidden sm:inline text-xs font-medium">Importar</span>
+                        </button>
+                        <input type="file" id="importFile" class="hidden" accept=".json" onchange="importData(event)">
+                        
+                        <div class="h-4 w-px bg-slate-300 mx-1"></div>
+                        
                         <button onclick="confirmResetAll()" title="Restaurar Padrões" class="p-2 text-rose-600 hover:bg-rose-50 rounded-lg transition text-sm flex items-center gap-1 font-bold">
                             <i class="fa-solid fa-rotate-left"></i>
-                            <span class="hidden sm:inline text-xs font-medium">Reset</span>
+                            <span class="hidden md:inline text-xs font-medium">Reset</span>
                         </button>
                     </div>
                 </div>
@@ -254,7 +268,7 @@
 
     <script>
         // ==========================================
-        // CONFIGURAÇÃO DO FIREBASE ATUALIZADA
+        // CONFIGURAÇÃO DO FIREBASE (Sua API Original)
         // ==========================================
         const firebaseConfig = {
             apiKey: "AIzaSyBB957KoM3hqvvKZrWjjIE4HNGHUZDJc8o",
@@ -272,41 +286,12 @@
         const dbRef = db.ref('checklist_buzios_2026');
 
         // ==========================================
-
+        // DADOS PADRÃO DE SEGURANÇA
+        // ==========================================
         const DEFAULT_DATA = {
-            ale: {
-                name: 'Ale', color: 'ale', items: [
-                    { id: '1', text: 'RG / CNH e comprovante do resort', category: 'Documentos & Essenciais', done: false },
-                    { id: '2', text: 'Cartões, dinheiro trocado e carteira', category: 'Documentos & Essenciais', done: false },
-                    { id: '3', text: 'Carregador de celular e powerbank', category: 'Documentos & Essenciais', done: false },
-                    { id: '4', text: '3x Sungas de praia', category: 'Roupas de Banho & Praia', done: false },
-                    { id: '5', text: '2x Bermudas de praia / tactel', category: 'Roupas de Banho & Praia', done: false },
-                    { id: '11', text: '1x Casaco Corta-vento (indispensável em Tucuns)', category: 'Roupas para a Noite & Casacos', done: false },
-                    { id: '15', text: 'Protetor solar corporal (FPS 50+)', category: 'Higiene & Proteção', done: false },
-                    { id: '17', text: 'Repelente de insetos', category: 'Higiene & Proteção', done: false },
-                    { id: '21', text: 'Chinelo Havaianas', category: 'Calçados & Acessórios', done: false }
-                ]
-            },
-            ane: {
-                name: 'Ane', color: 'ane', items: [
-                    { id: '101', text: 'Documento de Identidade (RG/CNH)', category: 'Documentos & Essenciais', done: false },
-                    { id: '102', text: 'Carregador de celular e fone de ouvido', category: 'Documentos & Essenciais', done: false },
-                    { id: '104', text: '3x Biquínis / Maiôs', category: 'Roupas de Banho & Praia', done: false },
-                    { id: '111', text: '1x Jaqueta Corta-vento ou Cardigan (vento praiano)', category: 'Roupas para a Noite & Casacos', done: false },
-                    { id: '115', text: 'Repelente (essencial para o fim de tarde)', category: 'Higiene & Proteção', done: false },
-                    { id: '121', text: 'Chinelo para praia/piscina', category: 'Calçados & Acessórios', done: false }
-                ]
-            },
-            ana: {
-                name: 'Ana', color: 'ana', items: [
-                    { id: '201', text: 'Documento oficial de identificação', category: 'Documentos & Essenciais', done: false },
-                    { id: '202', text: 'Carregador de celular', category: 'Documentos & Essenciais', done: false },
-                    { id: '203', text: '3x Biquínis / Maiôs confortáveis', category: 'Roupas de Banho & Praia', done: false },
-                    { id: '210', text: '1x Casaco Corta-vento ou jaqueta leve', category: 'Roupas para a Noite & Casacos', done: false },
-                    { id: '214', text: 'Repelente spray', category: 'Higiene & Proteção', done: false },
-                    { id: '219', text: 'Havaianas / Chinelo', category: 'Calçados & Acessórios', done: false }
-                ]
-            }
+            ale: { name: 'Ale', color: 'ale', items: [] },
+            ane: { name: 'Ane', color: 'ane', items: [] },
+            ana: { name: 'Ana', color: 'ana', items: [] }
         };
 
         const CATEGORIES = ['Documentos & Essenciais', 'Roupas de Banho & Praia', 'Roupas para o Dia', 'Roupas para a Noite & Casacos', 'Higiene & Proteção', 'Calçados & Acessórios'];
@@ -323,9 +308,8 @@
                 if (data) {
                     stateData = data;
                 } else {
-                    // Se o banco estiver vazio, carrega os dados padrão
+                    // Evita sobrescrever se o banco estiver vazio sem permissão, apenas carrega o visual vazio.
                     stateData = JSON.parse(JSON.stringify(DEFAULT_DATA));
-                    saveState(); // Salva os padrões no banco
                 }
                 updateUI();
             });
@@ -336,6 +320,56 @@
             dbRef.set(stateData);
         }
 
+        // ==========================================
+        // SISTEMA DE IMPORTAÇÃO/EXPORTAÇÃO VIA NUVEM
+        // ==========================================
+        function exportData() {
+            if (!stateData || Object.keys(stateData).length === 0) return alert('Não há dados para exportar.');
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(stateData, null, 2));
+            const dlAnchorElem = document.createElement('a');
+            dlAnchorElem.setAttribute("href", dataStr);
+            dlAnchorElem.setAttribute("download", `checklist_buzios_backup_${new Date().toISOString().slice(0,10)}.json`);
+            document.body.appendChild(dlAnchorElem);
+            dlAnchorElem.click();
+            dlAnchorElem.remove();
+        }
+
+        function triggerImport() {
+            document.getElementById('importFile').click();
+        }
+
+        function importData(event) {
+            const fileReader = new FileReader();
+            fileReader.onload = function(e) {
+                try {
+                    const imported = JSON.parse(e.target.result);
+                    // Valida se o JSON possui a estrutura correta (Ale, Ane, Ana)
+                    if (imported.ale && imported.ane && imported.ana) {
+                        stateData = imported;
+                        saveState(); // ISSO AQUI SOBRESCREVE A NUVEM COM SEUS DADOS
+                        alert('Seus itens foram restaurados com sucesso na nuvem! O celular da sua esposa já deve estar atualizado.');
+                    } else {
+                        alert('Arquivo JSON inválido. Certifique-se de que é o arquivo correto do checklist.');
+                    }
+                } catch (err) {
+                    alert('Erro ao ler o arquivo JSON. Ele pode estar corrompido.');
+                }
+            };
+            if (event.target.files[0]) {
+                fileReader.readAsText(event.target.files[0]);
+            }
+        }
+
+        function confirmResetAll() {
+            if (confirm('CUIDADO: Deseja apagar TODOS os dados da nuvem e restaurar a lista vazia? Para voltar, você precisará importar o JSON novamente.')) {
+                stateData = JSON.parse(JSON.stringify(DEFAULT_DATA));
+                saveState();
+            }
+        }
+
+        // ==========================================
+        // NAVEGAÇÃO E INTERFACE
+        // ==========================================
         function setActiveTab(tab) {
             activeTab = tab;
             ['all', 'ale', 'ane', 'ana'].forEach(t => {
@@ -389,7 +423,7 @@
 
                 if (cardPercent) cardPercent.innerText = `${stats.percent}%`;
                 if (cardBar) cardBar.style.width = `${stats.percent}%`;
-                if (cardCount) cardCount.innerText = `${stats.done} de ${stats.total} itens na mala`;
+                if (cardCount) cardCount.innerText = `${stats.done} de ${stats.total} itens`;
                 if (cardStatus) {
                     if (stats.percent === 100 && stats.total > 0) {
                         cardStatus.innerText = 'Mala Pronta! 🎉';
@@ -431,7 +465,7 @@
             }
 
             document.getElementById('profile-name').innerText = `Mala de ${data.name}`;
-            document.getElementById('profile-subtext').innerText = stats.percent === 100 ? 'Tudo pronto para Búzios! Boa viagem!' : 'Organize os itens essenciais na mala';
+            document.getElementById('profile-subtext').innerText = stats.percent === 100 && stats.total > 0 ? 'Tudo pronto para Búzios! Boa viagem!' : 'Organize os itens essenciais na mala';
             document.getElementById('profile-avatar').innerText = data.name.charAt(0);
             document.getElementById('profile-percent').innerText = `${stats.percent}%`;
             document.getElementById('profile-count').innerText = `${stats.done} de ${stats.total} itens`;
@@ -495,7 +529,7 @@
             if (item) {
                 item.done = !item.done;
                 const stats = getPersonStats(personKey);
-                if (stats.percent === 100 && item.done) triggerConfetti();
+                if (stats.percent === 100 && item.done && stats.total > 0) triggerConfetti();
                 saveState();
             }
         }
@@ -562,13 +596,6 @@
                 if (item) { item.text = val; saveState(); }
             }
             closeEditModal();
-        }
-
-        function confirmResetAll() {
-            if (confirm('Deseja apagar os dados da nuvem e restaurar o checklist inicial para Ale, Ane e Ana?')) {
-                stateData = JSON.parse(JSON.stringify(DEFAULT_DATA));
-                saveState();
-            }
         }
 
         function triggerConfetti() {
