@@ -12,6 +12,10 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <!-- Canvas Confetti -->
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    
+    <!-- Firebase SDK (Versão Compat) -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
     <script>
         tailwind.config = {
@@ -21,74 +25,28 @@
                         sans: ['Inter', 'sans-serif'],
                     },
                     colors: {
-                        ale: {
-                            50: '#eff6ff',
-                            100: '#dbeafe',
-                            500: '#3b82f6',
-                            600: '#2563eb',
-                            700: '#1d4ed8',
-                        },
-                        ane: {
-                            50: '#faf5ff',
-                            100: '#f3e8ff',
-                            500: '#a855f7',
-                            600: '#7c3aed',
-                            700: '#6d28d9',
-                        },
-                        ana: {
-                            50: '#fdf2f8',
-                            100: '#fce7f3',
-                            500: '#f43f5e',
-                            600: '#ec4899',
-                            700: '#be185d',
-                        }
+                        ale: { 50: '#eff6ff', 100: '#dbeafe', 500: '#3b82f6', 600: '#2563eb', 700: '#1d4ed8' },
+                        ane: { 50: '#faf5ff', 100: '#f3e8ff', 500: '#a855f7', 600: '#7c3aed', 700: '#6d28d9' },
+                        ana: { 50: '#fdf2f8', 100: '#fce7f3', 500: '#f43f5e', 600: '#ec4899', 700: '#be185d' }
                     }
                 }
             }
         }
     </script>
     <style>
-        ::-webkit-scrollbar {
-            width: 6px;
-            height: 6px;
-        }
-        ::-webkit-scrollbar-track {
-            background: #f1f5f9;
-        }
-        ::-webkit-scrollbar-thumb {
-            background: #cbd5e1;
-            border-radius: 9999px;
-        }
-        .checkbox-custom:checked + label span.item-text {
-            text-decoration: line-through;
-            color: #94a3b8;
-        }
-        .tab-active-ale {
-            border-color: #2563eb;
-            color: #2563eb;
-            background-color: #eff6ff;
-        }
-        .tab-active-ane {
-            border-color: #7c3aed;
-            color: #7c3aed;
-            background-color: #faf5ff;
-        }
-        .tab-active-ana {
-            border-color: #ec4899;
-            color: #ec4899;
-            background-color: #fdf2f8;
-        }
-        .tab-active-all {
-            border-color: #0f172a;
-            color: #0f172a;
-            background-color: #f8fafc;
-        }
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #f1f5f9; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 9999px; }
+        .checkbox-custom:checked + label span.item-text { text-decoration: line-through; color: #94a3b8; }
+        .tab-active-ale { border-color: #2563eb; color: #2563eb; background-color: #eff6ff; }
+        .tab-active-ane { border-color: #7c3aed; color: #7c3aed; background-color: #faf5ff; }
+        .tab-active-ana { border-color: #ec4899; color: #ec4899; background-color: #fdf2f8; }
+        .tab-active-all { border-color: #0f172a; color: #0f172a; background-color: #f8fafc; }
     </style>
 </head>
 <body class="h-full text-slate-800 antialiased flex flex-col justify-between">
 
     <div id="app" class="min-h-screen flex flex-col pb-12">
-        <!-- Header -->
         <header class="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-sm">
             <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="flex justify-between items-center py-4">
@@ -99,24 +57,11 @@
                         <div>
                             <h1 class="text-lg sm:text-xl font-bold text-slate-900 leading-tight">Checklist Búzios Beach Resort</h1>
                             <p class="text-xs text-slate-500 flex items-center gap-1.5 mt-0.5">
-                                <i class="fa-regular fa-calendar text-slate-400"></i> 26 a 29 de Outubro
-                                <span class="inline-block w-1 h-1 rounded-full bg-slate-300"></span>
-                                <i class="fa-solid fa-location-dot text-slate-400"></i> Praia de Tucuns
+                                <i class="fa-solid fa-cloud text-sky-500"></i> Sincronizado ao Vivo
                             </p>
                         </div>
                     </div>
-
-                    <!-- Actions -->
                     <div class="flex items-center gap-2">
-                        <button onclick="exportData()" title="Exportar Backup" class="p-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-lg transition text-sm flex items-center gap-1">
-                            <i class="fa-solid fa-download"></i>
-                            <span class="hidden sm:inline text-xs font-medium">Exportar</span>
-                        </button>
-                        <button onclick="triggerImport()" title="Importar Backup" class="p-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-lg transition text-sm flex items-center gap-1">
-                            <i class="fa-solid fa-upload"></i>
-                            <span class="hidden sm:inline text-xs font-medium">Importar</span>
-                        </button>
-                        <input type="file" id="importFile" class="hidden" accept=".json" onchange="importData(event)">
                         <button onclick="confirmResetAll()" title="Restaurar Padrões" class="p-2 text-rose-600 hover:bg-rose-50 rounded-lg transition text-sm flex items-center gap-1 font-bold">
                             <i class="fa-solid fa-rotate-left"></i>
                             <span class="hidden sm:inline text-xs font-medium">Reset</span>
@@ -124,52 +69,41 @@
                     </div>
                 </div>
 
-                <!-- Weather Wind Tip Alert -->
                 <div class="mb-3 bg-amber-50 border border-amber-200/80 rounded-xl p-3 flex items-start gap-3 text-xs sm:text-sm text-amber-900">
                     <i class="fa-solid fa-wind text-amber-600 text-base mt-0.5 shrink-0"></i>
                     <div class="flex-1">
-                        <span class="font-semibold">Dica de Búzios:</span> A Praia de Tucuns é bastante ventosa ao fim da tarde e à noite. Lembre-se do <strong>casaco corta-vento leve</strong> e roupas quentes para o período noturno!
+                        <span class="font-semibold">Dica de Búzios:</span> A Praia de Tucuns é bastante ventosa ao fim da tarde e à noite. Lembre-se do <strong>casaco corta-vento leve</strong>!
                     </div>
                 </div>
 
-                <!-- Person Tabs Navigation -->
                 <div class="flex space-x-2 border-b border-slate-200 overflow-x-auto pt-2">
                     <button id="tab-all" onclick="setActiveTab('all')" class="flex-1 min-w-[100px] py-2.5 px-3 border-b-2 font-medium text-xs sm:text-sm text-center flex justify-center items-center gap-2 transition-all border-transparent text-slate-500 hover:text-slate-700">
-                        <i class="fa-solid fa-users text-slate-400"></i>
-                        <span>Visão Geral</span>
+                        <i class="fa-solid fa-users text-slate-400"></i><span>Visão Geral</span>
                     </button>
                     <button id="tab-ale" onclick="setActiveTab('ale')" class="flex-1 min-w-[100px] py-2.5 px-3 border-b-2 font-semibold text-xs sm:text-sm text-center flex justify-center items-center gap-2 transition-all border-transparent text-slate-500 hover:text-ale-600">
-                        <span class="w-2.5 h-2.5 rounded-full bg-ale-500"></span>
-                        <span>Ale</span>
+                        <span class="w-2.5 h-2.5 rounded-full bg-ale-500"></span><span>Ale</span>
                         <span id="badge-ale" class="text-[10px] bg-ale-100 text-ale-700 px-1.5 py-0.5 rounded-full font-bold">0%</span>
                     </button>
                     <button id="tab-ane" onclick="setActiveTab('ane')" class="flex-1 min-w-[100px] py-2.5 px-3 border-b-2 font-semibold text-xs sm:text-sm text-center flex justify-center items-center gap-2 transition-all border-transparent text-slate-500 hover:text-ane-600">
-                        <span class="w-2.5 h-2.5 rounded-full bg-ane-500"></span>
-                        <span>Ane</span>
+                        <span class="w-2.5 h-2.5 rounded-full bg-ane-500"></span><span>Ane</span>
                         <span id="badge-ane" class="text-[10px] bg-ane-100 text-ane-700 px-1.5 py-0.5 rounded-full font-bold">0%</span>
                     </button>
                     <button id="tab-ana" onclick="setActiveTab('ana')" class="flex-1 min-w-[100px] py-2.5 px-3 border-b-2 font-semibold text-xs sm:text-sm text-center flex justify-center items-center gap-2 transition-all border-transparent text-slate-500 hover:text-ana-600">
-                        <span class="w-2.5 h-2.5 rounded-full bg-ana-500"></span>
-                        <span>Ana</span>
+                        <span class="w-2.5 h-2.5 rounded-full bg-ana-500"></span><span>Ana</span>
                         <span id="badge-ana" class="text-[10px] bg-ana-100 text-ana-700 px-1.5 py-0.5 rounded-full font-bold">0%</span>
                     </button>
                 </div>
             </div>
         </header>
 
-        <!-- Main Area -->
         <main class="max-w-5xl mx-auto w-full px-4 sm:px-6 lg:px-8 mt-6 flex-1">
-
-            <!-- ALL TAB CONTENT -->
             <div id="content-all" class="tab-content space-y-6">
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <!-- Ale Card -->
                     <div class="bg-white border-2 border-ale-100 rounded-2xl p-5 shadow-sm hover:shadow-md transition">
                         <div class="flex justify-between items-center mb-3">
                             <div class="flex items-center gap-2">
-                                <div class="w-8 h-8 rounded-full bg-ale-500 text-white font-bold flex items-center justify-center text-sm shadow-sm">
-                                    Ale
-                                </div>
+                                <div class="w-8 h-8 rounded-full bg-ale-500 text-white font-bold flex items-center justify-center text-sm shadow-sm">Ale</div>
                                 <h3 class="font-bold text-slate-800">Mala do Ale</h3>
                             </div>
                             <span id="overview-percent-ale" class="text-sm font-bold text-ale-600">0%</span>
@@ -178,22 +112,17 @@
                             <div id="overview-bar-ale" class="bg-ale-500 h-full transition-all duration-500" style="width: 0%"></div>
                         </div>
                         <div class="flex justify-between text-xs text-slate-500 mb-4">
-                            <span id="overview-count-ale">0 de 0 itens na mala</span>
+                            <span id="overview-count-ale">0 de 0 itens</span>
                             <span id="overview-status-ale" class="font-medium text-amber-600">Pendente</span>
                         </div>
-                        <button onclick="setActiveTab('ale')" class="w-full py-2 bg-ale-50 hover:bg-ale-100 text-ale-700 font-semibold rounded-xl text-xs transition flex items-center justify-center gap-1">
-                            <span>Ver Mala do Ale</span>
-                            <i class="fa-solid fa-arrow-right text-[10px]"></i>
-                        </button>
+                        <button onclick="setActiveTab('ale')" class="w-full py-2 bg-ale-50 hover:bg-ale-100 text-ale-700 font-semibold rounded-xl text-xs transition flex items-center justify-center gap-1">Ver Mala do Ale</button>
                     </div>
 
                     <!-- Ane Card -->
                     <div class="bg-white border-2 border-ane-100 rounded-2xl p-5 shadow-sm hover:shadow-md transition">
                         <div class="flex justify-between items-center mb-3">
                             <div class="flex items-center gap-2">
-                                <div class="w-8 h-8 rounded-full bg-ane-500 text-white font-bold flex items-center justify-center text-sm shadow-sm">
-                                    Ane
-                                </div>
+                                <div class="w-8 h-8 rounded-full bg-ane-500 text-white font-bold flex items-center justify-center text-sm shadow-sm">Ane</div>
                                 <h3 class="font-bold text-slate-800">Mala da Ane</h3>
                             </div>
                             <span id="overview-percent-ane" class="text-sm font-bold text-ane-600">0%</span>
@@ -202,22 +131,17 @@
                             <div id="overview-bar-ane" class="bg-ane-500 h-full transition-all duration-500" style="width: 0%"></div>
                         </div>
                         <div class="flex justify-between text-xs text-slate-500 mb-4">
-                            <span id="overview-count-ane">0 de 0 itens na mala</span>
+                            <span id="overview-count-ane">0 de 0 itens</span>
                             <span id="overview-status-ane" class="font-medium text-amber-600">Pendente</span>
                         </div>
-                        <button onclick="setActiveTab('ane')" class="w-full py-2 bg-ane-50 hover:bg-ane-100 text-ane-700 font-semibold rounded-xl text-xs transition flex items-center justify-center gap-1">
-                            <span>Ver Mala da Ane</span>
-                            <i class="fa-solid fa-arrow-right text-[10px]"></i>
-                        </button>
+                        <button onclick="setActiveTab('ane')" class="w-full py-2 bg-ane-50 hover:bg-ane-100 text-ane-700 font-semibold rounded-xl text-xs transition flex items-center justify-center gap-1">Ver Mala da Ane</button>
                     </div>
 
                     <!-- Ana Card -->
                     <div class="bg-white border-2 border-ana-100 rounded-2xl p-5 shadow-sm hover:shadow-md transition">
                         <div class="flex justify-between items-center mb-3">
                             <div class="flex items-center gap-2">
-                                <div class="w-8 h-8 rounded-full bg-ana-500 text-white font-bold flex items-center justify-center text-sm shadow-sm">
-                                    Ana
-                                </div>
+                                <div class="w-8 h-8 rounded-full bg-ana-500 text-white font-bold flex items-center justify-center text-sm shadow-sm">Ana</div>
                                 <h3 class="font-bold text-slate-800">Mala da Ana</h3>
                             </div>
                             <span id="overview-percent-ana" class="text-sm font-bold text-ana-600">0%</span>
@@ -226,13 +150,10 @@
                             <div id="overview-bar-ana" class="bg-ana-500 h-full transition-all duration-500" style="width: 0%"></div>
                         </div>
                         <div class="flex justify-between text-xs text-slate-500 mb-4">
-                            <span id="overview-count-ana">0 de 0 itens na mala</span>
+                            <span id="overview-count-ana">0 de 0 itens</span>
                             <span id="overview-status-ana" class="font-medium text-amber-600">Pendente</span>
                         </div>
-                        <button onclick="setActiveTab('ana')" class="w-full py-2 bg-ana-50 hover:bg-ana-100 text-ana-700 font-semibold rounded-xl text-xs transition flex items-center justify-center gap-1">
-                            <span>Ver Mala da Ana</span>
-                            <i class="fa-solid fa-arrow-right text-[10px]"></i>
-                        </button>
+                        <button onclick="setActiveTab('ana')" class="w-full py-2 bg-ana-50 hover:bg-ana-100 text-ana-700 font-semibold rounded-xl text-xs transition flex items-center justify-center gap-1">Ver Mala da Ana</button>
                     </div>
                 </div>
 
@@ -240,16 +161,13 @@
                     <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
                         <div>
                             <h3 class="text-lg font-bold flex items-center gap-2">
-                                <i class="fa-solid fa-suitcase-rolling text-sky-400"></i>
-                                Progresso do Grupo
+                                <i class="fa-solid fa-suitcase-rolling text-sky-400"></i> Progresso do Grupo
                             </h3>
-                            <p class="text-slate-300 text-xs sm:text-sm mt-1">
-                                Preparação para a viagem ao Búzios Beach Resort (26 a 29 de Outubro).
-                            </p>
+                            <p class="text-slate-300 text-xs sm:text-sm mt-1">Preparação para a viagem ao Búzios Beach Resort.</p>
                         </div>
                         <div class="text-right flex flex-col justify-center">
                             <span id="total-global-percent" class="text-3xl font-extrabold text-sky-400">0%</span>
-                            <span id="total-global-count" class="text-xs text-slate-400">0 de 0 itens em malas</span>
+                            <span id="total-global-count" class="text-xs text-slate-400">0 de 0 itens</span>
                         </div>
                     </div>
                 </div>
@@ -257,13 +175,10 @@
 
             <!-- INDIVIDUAL PROFILE TEMPLATE -->
             <div id="content-individual" class="tab-content hidden space-y-6">
-                <!-- Banner -->
                 <div id="profile-banner" class="rounded-2xl p-5 sm:p-6 transition-all duration-300 text-white shadow-md">
                     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                         <div class="flex items-center gap-3">
-                            <div id="profile-avatar" class="w-12 h-12 rounded-2xl bg-white/20 backdrop-blur-md flex items-center justify-center font-bold text-xl shadow-inner">
-                                A
-                            </div>
+                            <div id="profile-avatar" class="w-12 h-12 rounded-2xl bg-white/20 backdrop-blur-md flex items-center justify-center font-bold text-xl shadow-inner">A</div>
                             <div>
                                 <h2 id="profile-name" class="text-xl sm:text-2xl font-bold leading-none">Mala de Ale</h2>
                                 <p id="profile-subtext" class="text-xs text-white/80 mt-1">Organize os itens essenciais</p>
@@ -281,12 +196,11 @@
                     </div>
                 </div>
 
-                <!-- Controls: Add Item & Filters -->
                 <div class="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm space-y-4">
                     <div class="flex flex-col md:flex-row gap-3">
                         <div class="flex-1 flex gap-2">
                             <input type="text" id="newItemInput" placeholder="Adicionar novo item..." class="flex-1 border border-slate-300 rounded-xl px-3.5 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-slate-400">
-                            <select id="newItemCategory" class="border border-slate-300 rounded-xl px-3 py-2 text-xs sm:text-sm bg-slate-50 text-slate-700 focus:outline-none focus:ring-2 focus:ring-slate-400">
+                            <select id="newItemCategory" class="border border-slate-300 rounded-xl px-3 py-2 text-xs sm:text-sm bg-slate-50 text-slate-700">
                                 <option value="Documentos & Essenciais">Documentos</option>
                                 <option value="Roupas de Banho & Praia">Praia & Banho</option>
                                 <option value="Roupas para o Dia">Roupas do Dia</option>
@@ -295,8 +209,7 @@
                                 <option value="Calçados & Acessórios">Calçados & Outros</option>
                             </select>
                             <button onclick="addItemFromInput()" id="btnAddItem" class="px-4 py-2 text-white font-semibold rounded-xl text-sm transition flex items-center justify-center gap-1 shrink-0">
-                                <i class="fa-solid fa-plus"></i>
-                                <span class="hidden sm:inline">Adicionar</span>
+                                <i class="fa-solid fa-plus"></i> <span class="hidden sm:inline">Adicionar</span>
                             </button>
                         </div>
                     </div>
@@ -315,17 +228,13 @@
 
                 <div id="categories-container" class="space-y-4"></div>
             </div>
-
         </main>
 
         <footer class="mt-12 bg-white border-t border-slate-200 py-6 text-center text-xs text-slate-500">
             <div class="max-w-5xl mx-auto px-4 flex flex-col sm:flex-row justify-between items-center gap-3">
-                <div>
-                    <span class="font-semibold text-slate-700">Checklist Búzios Beach Resort</span> — 2026
-                </div>
+                <div><span class="font-semibold text-slate-700">Checklist Búzios Beach Resort</span> — 2026</div>
                 <div class="flex items-center gap-4 text-slate-400">
-                    <span class="flex items-center gap-1"><i class="fa-solid fa-shield-halved text-sky-500"></i> Salvo automaticamente</span>
-                    <span class="flex items-center gap-1"><i class="fa-solid fa-wifi text-emerald-500"></i> Funciona offline</span>
+                    <span class="flex items-center gap-1 text-sky-600"><i class="fa-solid fa-cloud-arrow-up"></i> Sincronizado ao vivo</span>
                 </div>
             </div>
         </footer>
@@ -343,134 +252,92 @@
         </div>
     </div>
 
-    <!-- Application Script -->
     <script>
+        // ==========================================
+        // CONFIGURAÇÃO DO FIREBASE ATUALIZADA
+        // ==========================================
+        const firebaseConfig = {
+            apiKey: "AIzaSyBB957KoM3hqvvKZrWjjIE4HNGHUZDJc8o",
+            authDomain: "checklist-buzios-914fe.firebaseapp.com",
+            databaseURL: "https://checklist-buzios-914fe-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "checklist-buzios-914fe",
+            storageBucket: "checklist-buzios-914fe.firebasestorage.app",
+            messagingSenderId: "683263306362",
+            appId: "1:683263306362:web:90c6f2ff6bf9b83730e9c3",
+            measurementId: "G-MBET4ELCLE"
+        };
+        
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+        const dbRef = db.ref('checklist_buzios_2026');
+
+        // ==========================================
+
         const DEFAULT_DATA = {
             ale: {
-                name: 'Ale',
-                color: 'ale',
-                items: [
+                name: 'Ale', color: 'ale', items: [
                     { id: '1', text: 'RG / CNH e comprovante do resort', category: 'Documentos & Essenciais', done: false },
                     { id: '2', text: 'Cartões, dinheiro trocado e carteira', category: 'Documentos & Essenciais', done: false },
                     { id: '3', text: 'Carregador de celular e powerbank', category: 'Documentos & Essenciais', done: false },
                     { id: '4', text: '3x Sungas de praia', category: 'Roupas de Banho & Praia', done: false },
                     { id: '5', text: '2x Bermudas de praia / tactel', category: 'Roupas de Banho & Praia', done: false },
-                    { id: '6', text: 'Camisa de proteção UV', category: 'Roupas de Banho & Praia', done: false },
-                    { id: '7', text: '4x Camisetas leves / Regatas para o dia', category: 'Roupas para o Dia', done: false },
-                    { id: '8', text: '2x Bermudas casuais', category: 'Roupas para o Dia', done: false },
-                    { id: '9', text: 'Roupas íntimas para 4 dias', category: 'Roupas para o Dia', done: false },
-                    { id: '10', text: 'Meias para caminhada/tênis', category: 'Roupas para o Dia', done: false },
                     { id: '11', text: '1x Casaco Corta-vento (indispensável em Tucuns)', category: 'Roupas para a Noite & Casacos', done: false },
-                    { id: '12', text: '1x Moletom leve ou jaqueta fina', category: 'Roupas para a Noite & Casacos', done: false },
-                    { id: '13', text: '2x Calças jeans / sarja para jantar', category: 'Roupas para a Noite & Casacos', done: false },
-                    { id: '14', text: '2x Camisas gola polo ou sociais leves', category: 'Roupas para a Noite & Casacos', done: false },
                     { id: '15', text: 'Protetor solar corporal (FPS 50+)', category: 'Higiene & Proteção', done: false },
-                    { id: '16', text: 'Protetor solar facial', category: 'Higiene & Proteção', done: false },
                     { id: '17', text: 'Repelente de insetos', category: 'Higiene & Proteção', done: false },
-                    { id: '18', text: 'Escova, pasta de dente e fio dental', category: 'Higiene & Proteção', done: false },
-                    { id: '19', text: 'Shampoo, sabonete e desodorante', category: 'Higiene & Proteção', done: false },
-                    { id: '20', text: 'Medicamentos básicos (dor, enjoo, curativos)', category: 'Higiene & Proteção', done: false },
-                    { id: '21', text: 'Chinelo Havaianas', category: 'Calçados & Acessórios', done: false },
-                    { id: '22', text: 'Tênis confortável para caminhada', category: 'Calçados & Acessórios', done: false },
-                    { id: '23', text: 'Óculos de sol e boné', category: 'Calçados & Acessórios', done: false }
+                    { id: '21', text: 'Chinelo Havaianas', category: 'Calçados & Acessórios', done: false }
                 ]
             },
             ane: {
-                name: 'Ane',
-                color: 'ane',
-                items: [
+                name: 'Ane', color: 'ane', items: [
                     { id: '101', text: 'Documento de Identidade (RG/CNH)', category: 'Documentos & Essenciais', done: false },
                     { id: '102', text: 'Carregador de celular e fone de ouvido', category: 'Documentos & Essenciais', done: false },
-                    { id: '103', text: 'Bolsa pequena para passeio noturno', category: 'Documentos & Essenciais', done: false },
                     { id: '104', text: '3x Biquínis / Maiôs', category: 'Roupas de Banho & Praia', done: false },
-                    { id: '105', text: 'Saídas de praia leves (2x)', category: 'Roupas de Banho & Praia', done: false },
-                    { id: '106', text: 'Canga e chapéu de praia', category: 'Roupas de Banho & Praia', done: false },
-                    { id: '107', text: 'Bolsa de praia', category: 'Roupas de Banho & Praia', done: false },
-                    { id: '108', text: '4x Vestidos leves / Conjuntos para o dia', category: 'Roupas para o Dia', done: false },
-                    { id: '109', text: 'Regatas e shorts jeans', category: 'Roupas para o Dia', done: false },
-                    { id: '110', text: 'Roupas íntimas para 4 dias', category: 'Roupas para o Dia', done: false },
                     { id: '111', text: '1x Jaqueta Corta-vento ou Cardigan (vento praiano)', category: 'Roupas para a Noite & Casacos', done: false },
-                    { id: '112', text: '1x Jaqueta jeans leve para à noite', category: 'Roupas para a Noite & Casacos', done: false },
-                    { id: '113', text: '2x Looks para jantares/Rua das Pedras', category: 'Roupas para a Noite & Casacos', done: false },
-                    { id: '114', text: 'Protetor solar corporal e facial', category: 'Higiene & Proteção', done: false },
                     { id: '115', text: 'Repelente (essencial para o fim de tarde)', category: 'Higiene & Proteção', done: false },
-                    { id: '116', text: 'Hidratante corporal e labial', category: 'Higiene & Proteção', done: false },
-                    { id: '117', text: 'Kit higiene (shampoo, condicionador, sabonete)', category: 'Higiene & Proteção', done: false },
-                    { id: '118', text: 'Maquiagem básica e demaquilante', category: 'Higiene & Proteção', done: false },
-                    { id: '119', text: 'Escova de cabelo e presilhas', category: 'Higiene & Proteção', done: false },
-                    { id: '200', text: 'Rasteirinha elegante para a noite', category: 'Calçados & Acessórios', done: false },
-                    { id: '121', text: 'Chinelo para praia/piscina', category: 'Calçados & Acessórios', done: false },
-                    { id: '122', text: 'Óculos de sol e acessórios', category: 'Calçados & Acessórios', done: false }
+                    { id: '121', text: 'Chinelo para praia/piscina', category: 'Calçados & Acessórios', done: false }
                 ]
             },
             ana: {
-                name: 'Ana',
-                color: 'ana',
-                items: [
+                name: 'Ana', color: 'ana', items: [
                     { id: '201', text: 'Documento oficial de identificação', category: 'Documentos & Essenciais', done: false },
                     { id: '202', text: 'Carregador de celular', category: 'Documentos & Essenciais', done: false },
                     { id: '203', text: '3x Biquínis / Maiôs confortáveis', category: 'Roupas de Banho & Praia', done: false },
-                    { id: '204', text: 'Saídas de praia e canga', category: 'Roupas de Banho & Praia', done: false },
-                    { id: '205', text: 'Viseira / Chapéu de sol', category: 'Roupas de Banho & Praia', done: false },
-                    { id: '206', text: 'Óculos de sol com proteção UV', category: 'Roupas de Banho & Praia', done: false },
-                    { id: '207', text: '4x Blusas/T-shirts leves', category: 'Roupas para o Dia', done: false },
-                    { id: '208', text: 'Shorts e saias confortáveis', category: 'Roupas para o Dia', done: false },
-                    { id: '209', text: 'Roupas íntimas para 4 dias e pijama', category: 'Roupas para o Dia', done: false },
                     { id: '210', text: '1x Casaco Corta-vento ou jaqueta leve', category: 'Roupas para a Noite & Casacos', done: false },
-                    { id: '211', text: '1x Pashmina ou lenço para o vento noturno', category: 'Roupas para a Noite & Casacos', done: false },
-                    { id: '212', text: '2x Vestidos/Looks para passear à noite', category: 'Roupas para a Noite & Casacos', done: false },
-                    { id: '213', text: 'Protetor solar e protetor labial', category: 'Higiene & Proteção', done: false },
                     { id: '214', text: 'Repelente spray', category: 'Higiene & Proteção', done: false },
-                    { id: '215', text: 'Escova de dentes e pasta', category: 'Higiene & Proteção', done: false },
-                    { id: '216', text: 'Kit banho & Cabelos (Shampoo/Creme pós-mar)', category: 'Higiene & Proteção', done: false },
-                    { id: '217', text: 'Perfume e desodorante', category: 'Higiene & Proteção', done: false },
-                    { id: '218', text: 'Sandália rasteira', category: 'Calçados & Acessórios', done: false },
-                    { id: '219', text: 'Havaianas / Chinelo', category: 'Calçados & Acessórios', done: false },
-                    { id: '220', text: 'Tênis leve para caminhada', category: 'Calçados & Acessórios', done: false }
+                    { id: '219', text: 'Havaianas / Chinelo', category: 'Calçados & Acessórios', done: false }
                 ]
             }
         };
 
-        const CATEGORIES = [
-            'Documentos & Essenciais',
-            'Roupas de Banho & Praia',
-            'Roupas para o Dia',
-            'Roupas para a Noite & Casacos',
-            'Higiene & Proteção',
-            'Calçados & Acessórios'
-        ];
-
+        const CATEGORIES = ['Documentos & Essenciais', 'Roupas de Banho & Praia', 'Roupas para o Dia', 'Roupas para a Noite & Casacos', 'Higiene & Proteção', 'Calçados & Acessórios'];
+        
         let stateData = {};
         let activeTab = 'all';
         let currentFilter = 'all';
         let editingItemId = null;
 
         window.addEventListener('DOMContentLoaded', () => {
-            loadState();
-            updateUI();
+            // Escuta as alterações no Firebase em tempo real
+            dbRef.on('value', (snapshot) => {
+                const data = snapshot.val();
+                if (data) {
+                    stateData = data;
+                } else {
+                    // Se o banco estiver vazio, carrega os dados padrão
+                    stateData = JSON.parse(JSON.stringify(DEFAULT_DATA));
+                    saveState(); // Salva os padrões no banco
+                }
+                updateUI();
+            });
         });
 
-        function loadState() {
-            const saved = localStorage.getItem('buzios_checklist_data_2026');
-            if (saved) {
-                try {
-                    stateData = JSON.parse(saved);
-                } catch (e) {
-                    stateData = JSON.parse(JSON.stringify(DEFAULT_DATA));
-                }
-            } else {
-                stateData = JSON.parse(JSON.stringify(DEFAULT_DATA));
-            }
-        }
-
         function saveState() {
-            localStorage.setItem('buzios_checklist_data_2026', JSON.stringify(stateData));
-            updateUI();
+            // Envia os dados atualizados para a nuvem
+            dbRef.set(stateData);
         }
 
         function setActiveTab(tab) {
             activeTab = tab;
-            
             ['all', 'ale', 'ane', 'ana'].forEach(t => {
                 const btn = document.getElementById(`tab-${t}`);
                 btn.className = `flex-1 min-w-[100px] py-2.5 px-3 border-b-2 font-medium text-xs sm:text-sm text-center flex justify-center items-center gap-2 transition-all border-transparent text-slate-500 hover:text-slate-800`;
@@ -490,7 +357,6 @@
                 document.getElementById('content-individual').classList.remove('hidden');
                 renderIndividualView(tab);
             }
-
             updateUI();
         }
 
@@ -503,6 +369,8 @@
         }
 
         function updateUI() {
+            if (!stateData || Object.keys(stateData).length === 0) return;
+
             let totalItemsAll = 0;
             let totalDoneAll = 0;
 
@@ -537,14 +405,10 @@
             });
 
             const globalPercent = totalItemsAll > 0 ? Math.round((totalDoneAll / totalItemsAll) * 100) : 0;
-            const elGlobalPercent = document.getElementById('total-global-percent');
-            const elGlobalCount = document.getElementById('total-global-count');
-            if (elGlobalPercent) elGlobalPercent.innerText = `${globalPercent}%`;
-            if (elGlobalCount) elGlobalCount.innerText = `${totalDoneAll} de ${totalItemsAll} itens em todas as malas`;
+            document.getElementById('total-global-percent').innerText = `${globalPercent}%`;
+            document.getElementById('total-global-count').innerText = `${totalDoneAll} de ${totalItemsAll} itens em todas as malas`;
 
-            if (activeTab !== 'all') {
-                renderIndividualView(activeTab);
-            }
+            if (activeTab !== 'all') renderIndividualView(activeTab);
         }
 
         function renderIndividualView(personKey) {
@@ -552,14 +416,7 @@
             if (!data) return;
 
             const stats = getPersonStats(personKey);
-
             const banner = document.getElementById('profile-banner');
-            const name = document.getElementById('profile-name');
-            const subtext = document.getElementById('profile-subtext');
-            const avatar = document.getElementById('profile-avatar');
-            const percent = document.getElementById('profile-percent');
-            const count = document.getElementById('profile-count');
-            const progressBar = document.getElementById('profile-progress-bar');
             const btnAdd = document.getElementById('btnAddItem');
 
             if (personKey === 'ale') {
@@ -573,32 +430,28 @@
                 btnAdd.className = 'px-4 py-2 bg-pink-600 hover:bg-pink-700 text-white font-semibold rounded-xl text-sm transition flex items-center justify-center gap-1 shrink-0';
             }
 
-            name.innerText = `Mala de ${data.name}`;
-            subtext.innerText = stats.percent === 100 ? 'Tudo pronto para Búzios! Boa viagem!' : 'Organize os itens essenciais na mala';
-            avatar.innerText = data.name.charAt(0);
-            percent.innerText = `${stats.percent}%`;
-            count.innerText = `${stats.done} de ${stats.total} itens`;
-            progressBar.style.width = `${stats.percent}%`;
+            document.getElementById('profile-name').innerText = `Mala de ${data.name}`;
+            document.getElementById('profile-subtext').innerText = stats.percent === 100 ? 'Tudo pronto para Búzios! Boa viagem!' : 'Organize os itens essenciais na mala';
+            document.getElementById('profile-avatar').innerText = data.name.charAt(0);
+            document.getElementById('profile-percent').innerText = `${stats.percent}%`;
+            document.getElementById('profile-count').innerText = `${stats.done} de ${stats.total} itens`;
+            document.getElementById('profile-progress-bar').style.width = `${stats.percent}%`;
 
             const container = document.getElementById('categories-container');
             container.innerHTML = '';
 
             CATEGORIES.forEach(cat => {
-                let categoryItems = data.items.filter(item => item.category === cat);
+                let categoryItems = data.items ? data.items.filter(item => item.category === cat) : [];
 
-                if (currentFilter === 'pending') {
-                    categoryItems = categoryItems.filter(i => !i.done);
-                } else if (currentFilter === 'done') {
-                    categoryItems = categoryItems.filter(i => i.done);
-                }
+                if (currentFilter === 'pending') categoryItems = categoryItems.filter(i => !i.done);
+                else if (currentFilter === 'done') categoryItems = categoryItems.filter(i => i.done);
 
                 if (categoryItems.length === 0 && currentFilter !== 'all') return;
 
                 const catCard = document.createElement('div');
                 catCard.className = 'bg-white border border-slate-200 rounded-2xl p-4 sm:p-5 shadow-sm space-y-3';
-
-                const doneInCat = data.items.filter(i => i.category === cat && i.done).length;
-                const totalInCat = data.items.filter(i => i.category === cat).length;
+                const doneInCat = data.items ? data.items.filter(i => i.category === cat && i.done).length : 0;
+                const totalInCat = data.items ? data.items.filter(i => i.category === cat).length : 0;
 
                 catCard.innerHTML = `
                     <div class="flex justify-between items-center pb-2 border-b border-slate-100">
@@ -610,9 +463,7 @@
                     </div>
                     <div class="items-list-container space-y-1.5"></div>
                 `;
-
                 container.appendChild(catCard);
-
                 const itemsListEl = catCard.querySelector('.items-list-container');
 
                 if (categoryItems.length === 0) {
@@ -621,23 +472,16 @@
                     categoryItems.forEach(item => {
                         const itemEl = document.createElement('div');
                         itemEl.className = `flex items-center justify-between p-2.5 rounded-xl border transition-all ${item.done ? 'bg-slate-50 border-slate-200/60' : 'bg-white border-slate-200 hover:border-slate-300'}`;
-
                         itemEl.innerHTML = `
                             <div class="flex items-center gap-3 flex-1 min-w-0 pr-2">
-                                <input type="checkbox" id="item-${item.id}" ${item.done ? 'checked' : ''} 
-                                    onchange="toggleItem('${personKey}', '${item.id}')"
-                                    class="checkbox-custom w-4 h-4 rounded text-slate-800 focus:ring-slate-400 cursor-pointer">
+                                <input type="checkbox" id="item-${item.id}" ${item.done ? 'checked' : ''} onchange="toggleItem('${personKey}', '${item.id}')" class="checkbox-custom w-4 h-4 rounded text-slate-800 focus:ring-slate-400 cursor-pointer">
                                 <label for="item-${item.id}" class="cursor-pointer flex-1 min-w-0">
                                     <span class="item-text text-xs sm:text-sm font-medium text-slate-700 block truncate">${escapeHtml(item.text)}</span>
                                 </label>
                             </div>
                             <div class="flex items-center gap-1 shrink-0">
-                                <button onclick="openEditModal('${personKey}', '${item.id}')" title="Editar" class="p-1.5 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg transition text-xs">
-                                    <i class="fa-regular fa-pen-to-square"></i>
-                                </button>
-                                <button onclick="deleteItem('${personKey}', '${item.id}')" title="Excluir" class="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition text-xs">
-                                    <i class="fa-regular fa-trash-can"></i>
-                                </button>
+                                <button onclick="openEditModal('${personKey}', '${item.id}')" title="Editar" class="p-1.5 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg transition text-xs"><i class="fa-regular fa-pen-to-square"></i></button>
+                                <button onclick="deleteItem('${personKey}', '${item.id}')" title="Excluir" class="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition text-xs"><i class="fa-regular fa-trash-can"></i></button>
                             </div>
                         `;
                         itemsListEl.appendChild(itemEl);
@@ -651,34 +495,25 @@
             if (item) {
                 item.done = !item.done;
                 const stats = getPersonStats(personKey);
-                if (stats.percent === 100 && item.done) {
-                    triggerConfetti();
-                }
+                if (stats.percent === 100 && item.done) triggerConfetti();
                 saveState();
             }
         }
 
         function addItemFromInput() {
             if (activeTab === 'all') return;
-
             const input = document.getElementById('newItemInput');
             const catSelect = document.getElementById('newItemCategory');
             const text = input.value.trim();
-            const category = catSelect.value;
+            if (!text) return input.focus();
 
-            if (!text) {
-                input.focus();
-                return;
-            }
-
-            const newItem = {
+            if (!stateData[activeTab].items) stateData[activeTab].items = [];
+            stateData[activeTab].items.push({
                 id: Date.now().toString(),
                 text: text,
-                category: category,
+                category: catSelect.value,
                 done: false
-            };
-
-            stateData[activeTab].items.push(newItem);
+            });
             input.value = '';
             saveState();
         }
@@ -691,12 +526,7 @@
         function setFilter(filter) {
             currentFilter = filter;
             ['all', 'pending', 'done'].forEach(f => {
-                const btn = document.getElementById(`filter-${f}`);
-                if (f === filter) {
-                    btn.className = 'px-3 py-1.5 rounded-lg font-medium transition bg-slate-900 text-white';
-                } else {
-                    btn.className = 'px-3 py-1.5 rounded-lg font-medium transition text-slate-600 hover:bg-slate-100';
-                }
+                document.getElementById(`filter-${f}`).className = f === filter ? 'px-3 py-1.5 rounded-lg font-medium transition bg-slate-900 text-white' : 'px-3 py-1.5 rounded-lg font-medium transition text-slate-600 hover:bg-slate-100';
             });
             updateUI();
         }
@@ -729,64 +559,20 @@
             const val = document.getElementById('editItemInput').value.trim();
             if (val) {
                 const item = stateData[activeTab].items.find(i => i.id === editingItemId);
-                if (item) {
-                    item.text = val;
-                    saveState();
-                }
+                if (item) { item.text = val; saveState(); }
             }
             closeEditModal();
         }
 
-        function exportData() {
-            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(stateData, null, 2));
-            const dlAnchorElem = document.createElement('a');
-            dlAnchorElem.setAttribute("href", dataStr);
-            dlAnchorElem.setAttribute("download", `checklist_buzios_backup_${new Date().toISOString().slice(0,10)}.json`);
-            document.body.appendChild(dlAnchorElem);
-            dlAnchorElem.click();
-            dlAnchorElem.remove();
-        }
-
-        function triggerImport() {
-            document.getElementById('importFile').click();
-        }
-
-        function importData(event) {
-            const fileReader = new FileReader();
-            fileReader.onload = function(e) {
-                try {
-                    const imported = JSON.parse(e.target.result);
-                    if (imported.ale && imported.ane && imported.ana) {
-                        stateData = imported;
-                        saveState();
-                        alert('Checklist importado com sucesso!');
-                    } else {
-                        alert('Arquivo JSON inválido.');
-                    }
-                } catch (err) {
-                    alert('Erro ao ler arquivo.');
-                }
-            };
-            if (event.target.files[0]) {
-                fileReader.readAsText(event.target.files[0]);
-            }
-        }
-
         function confirmResetAll() {
-            if (confirm('Deseja restaurar o checklist inicial para Ale, Ane e Ana?')) {
+            if (confirm('Deseja apagar os dados da nuvem e restaurar o checklist inicial para Ale, Ane e Ana?')) {
                 stateData = JSON.parse(JSON.stringify(DEFAULT_DATA));
                 saveState();
             }
         }
 
         function triggerConfetti() {
-            if (typeof confetti === 'function') {
-                confetti({
-                    particleCount: 100,
-                    spread: 70,
-                    origin: { y: 0.6 }
-                });
-            }
+            if (typeof confetti === 'function') confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
         }
 
         function getCategoryIcon(category) {
@@ -801,17 +587,12 @@
             }
         }
 
-        function escapeHtml(str) {
-            return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
-        }
+        function escapeHtml(str) { return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;"); }
 
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Enter') {
-                if (document.activeElement.id === 'newItemInput') {
-                    addItemFromInput();
-                } else if (document.activeElement.id === 'editItemInput') {
-                    saveEditItem();
-                }
+                if (document.activeElement.id === 'newItemInput') addItemFromInput();
+                else if (document.activeElement.id === 'editItemInput') saveEditItem();
             }
         });
     </script>
